@@ -30,7 +30,7 @@ function dealCards() {
 		card.appendChild(front);
 		grid.appendChild(card);
 	}
-	document.getElementById('playground').appendChild(grid);
+	document.getElementById('table').appendChild(grid);
 }
 
 let firstChoice = null;

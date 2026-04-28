@@ -28,7 +28,7 @@ body {
 }
 
 
-#playground {
+#table {
 	position: absolute;
 	width: 100vw;
 	height: 100vh;
@@ -129,7 +129,7 @@ ul {
 	}
 }
 
-@media screen and (aspect-ratio > 0.78) {
+@media screen and (aspect-ratio > 0.75) {
 	ul {
 		grid-template-columns: repeat(8, 1fr);
 	}
@@ -196,6 +196,32 @@ ul {
 
 /* Animations */
 
+@keyframes up_down {
+
+	0% {
+		transform: scale(1) rotateY(0deg);
+	}
+
+	25% {
+		transform: scale(1.5) rotateY(20deg);
+	}
+
+	50% {
+		transform: scale(1.5) rotateY(90deg);
+
+	}
+
+	75% {
+		transform: scale(1.5) rotateY(160deg);
+	}
+
+	100% {
+		transform: scale(1) rotateY(180deg);
+	}
+}
+
+
+
 @keyframes up {
 	0% {
 		transform: rotateY(0deg);
@@ -221,7 +247,7 @@ ul {
 }
 
 .up {
-	animation: up 1s ease-in-out forwards;
+	animation: up_down 1s ease-in-out forwards;
 }
 
 .down {
