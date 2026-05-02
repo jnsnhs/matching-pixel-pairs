@@ -62,12 +62,15 @@ class Game {
     grid.id = "grid-of-cards";
     let listOfimageUrls = this.getListOfimageUrls(this.numberOfCards);
     for (let i = 0; i < this.numberOfCards; i++) {
-      let card = document.createElement("li");
+      let rotationContainer = document.createElement("li");
+      rotationContainer.classList.add("rotation-container");
+      this.addRandomRotation(rotationContainer);
+      let card = document.createElement("div");
       card.classList.add("card");
       let front = document.createElement("div");
       front.classList.add("front");
       front.style.backgroundImage =
-        'url("' + IMG_DIR + "/" + listOfimageUrls[i] + '")';
+      'url("' + IMG_DIR + "/" + listOfimageUrls[i] + '")';
       let back = document.createElement("div");
       back.classList.add("back");
       card.addEventListener("click", () => {
@@ -75,9 +78,15 @@ class Game {
       });
       card.appendChild(back);
       card.appendChild(front);
-      grid.appendChild(card);
+      rotationContainer.appendChild(card);
+      grid.appendChild(rotationContainer);
     }
     this.gameContainer.appendChild(grid);
+  }
+  addRandomRotation(element) {
+    let values = [-0.9, -0.6, -0.3, 0, 0.3, 0.6, 0.9];
+    let choice = values[Math.floor(Math.random() * values.length)];
+    element.style.transform = `rotateZ(${choice}deg)`;
   }
   chooseCard(clickedCard) {
     let isCardCovered = !clickedCard.classList.contains("uncovered");
@@ -153,6 +162,7 @@ class Screen {
   createScreen(screenId) {
     let screen = document.createElement("div");
     screen.classList.add("screen");
+    screen.classList.add(screenId);
     screen.id = screenId;
     document.getElementById("matching-pixel-pairs").appendChild(screen);
     return screen;
@@ -176,10 +186,14 @@ class Screen {
 class StartGameScreen extends Screen {
   constructor() {
     super("start-game-screen");
+    this.createContent();
+  }
+  createContent() {
     let title = document.createElement("h1");
     title.innerHTML = "Matching Pixel Pairs";
     this.screenContainer.appendChild(title);
     let difficulties = { easy: 4, medium: 24, hard: 48 };
+    let mainMenu = document.createElement("div");
     for (let [description, numberOfCards] of Object.entries(difficulties)) {
       let startBtn = document.createElement("button");
       let btnText = document.createTextNode(`${description}`);
@@ -188,8 +202,9 @@ class StartGameScreen extends Screen {
         this.controller.screens.inGameScreen.startNewGame(numberOfCards);
         this.controller.switchScreen(this.controller.screens.inGameScreen);
       });
-      this.screenContainer.appendChild(startBtn);
+      mainMenu.appendChild(startBtn);
     }
+    this.screenContainer.appendChild(mainMenu);
   }
 }
 
