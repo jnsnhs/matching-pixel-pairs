@@ -59,6 +59,19 @@ class Game {
     }
     let grid = document.createElement("ul");
     grid.classList.add("grid");
+    switch (this.numberOfCards) {
+      case 12:
+        grid.classList.add("easy");
+        break;
+      case 24:
+        grid.classList.add("medium");
+        break;
+      case 48:
+        grid.classList.add("hard");
+        break;
+      default:
+        break;
+    }
     grid.id = "grid-of-cards";
     let listOfimageUrls = this.getListOfimageUrls(this.numberOfCards);
     for (let i = 0; i < this.numberOfCards; i++) {

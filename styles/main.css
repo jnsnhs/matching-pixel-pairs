@@ -64,8 +64,8 @@ body {
   transition: all 0s ease-out;
 }
 
-.front,
-.back {
+.card .front,
+.card .back {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -75,7 +75,7 @@ body {
   border-radius: 2px;
 }
 
-.front {
+.card .front {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
@@ -84,22 +84,18 @@ body {
   border: 5px solid beige;
 }
 
-.back {
+.card .back {
   cursor: pointer;
   background-image: url("../images/bg.jpg");
 }
 
-.uncovered {
-  animation: up_flip_down 400ms ease-in-out;
+.card .uncovered {
+  animation: uncover-card 400ms ease-in-out;
   animation-fill-mode: forwards;
 }
 
-.covered {
+.card .covered {
   animation: cover-card 400ms ease-in-out;
-}
-
-.rotatedY180 {
-  transform: rotateY(180deg);
 }
 
 @keyframes cover-card {
@@ -120,7 +116,7 @@ body {
   }
 }
 
-@keyframes up_flip_down {
+@keyframes uncover-card {
   0% {
     transform: scale(1) rotateY(0deg);
   }
@@ -152,7 +148,6 @@ ul {
   justify-content: center;
   margin: auto;
   overflow: hidden;
-  border: 1px solid green;
 }
 
 .card {
@@ -162,51 +157,100 @@ ul {
 }
 
 @media screen and (aspect-ratio > 0.29) {
-  ul {
+  ul.hard {
     grid-template-columns: repeat(4, 1fr);
   }
-  .card {
+  .hard .card {
     width: 22vw;
     height: 22vw;
   }
 }
 
 @media screen and (aspect-ratio > 0.35) {
-  ul {
+  ul.hard {
     grid-template-columns: repeat(6, 1fr);
   }
-  .card {
+  .hard .card {
+    width: 15vw;
+    height: 15vw;
+  }
+  ul.medium {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .medium .card {
+    width: 22vw;
+    height: 22vw;
+  }
+  ul.easy {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .easy .card {
+    width: 30vw;
+    height: 30vw;
+  }
+}
+
+@media screen and (aspect-ratio > 0.75) {
+  ul.hard {
+    grid-template-columns: repeat(8, 1fr);
+  }
+  .hard .card {
+    width: 11vw;
+    height: 11vw;
+  }
+  ul.medium {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .medium .card {
+    width: 15vw;
+    height: 15vw;
+  }
+  ul.easy {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .easy .card {
+    width: 22vw;
+    height: 22vw;
+  }
+}
+
+@media (aspect-ratio > 1.35) {
+  ul.hard {
+    grid-template-columns: repeat(12, 1fr);
+  }
+  .hard .card {
+    width: 7vw;
+    height: 7vw;
+  }
+  ul.medium {
+    grid-template-columns: repeat(8, 1fr);
+  }
+  .medium .card {
+    width: 11vw;
+    height: 11vw;
+  }
+  ul.easy {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .easy .card {
     width: 15vw;
     height: 15vw;
   }
 }
 
-@media screen and (aspect-ratio > 0.75) {
-  ul {
-    grid-template-columns: repeat(8, 1fr);
-  }
-  .card {
-    width: 11vw;
-    height: 11vw;
-  }
-}
-
-@media (aspect-ratio > 1.35) {
-  ul {
-    grid-template-columns: repeat(12, 1fr);
-  }
-  .card {
-    width: 7vw;
-    height: 7vw;
-  }
-}
-
 @media (aspect-ratio > 2.7) {
-  ul {
+  ul.hard {
     grid-template-columns: repeat(16, 1fr);
   }
-  .card {
+  .hard .card {
     width: 5.1vw;
     height: 5.1vw;
+  }
+  ul.medium {
+    grid-template-columns: repeat(12, 1fr);
+  }
+  .medium .card {
+    width: 7vw;
+    height: 7vw;
   }
 }
