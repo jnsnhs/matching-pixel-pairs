@@ -14,6 +14,13 @@ class Utils {
     }
     return array;
   }
+  static getSequence(firstNumber, lastNumber) {
+    let sequence = [];
+    for (let i = firstNumber; i <= lastNumber; i++) {
+      sequence.push(i);
+    }
+    return sequence;
+  }
 }
 
 class Game {
@@ -25,7 +32,6 @@ class Game {
     this.gameContainer = document.getElementById("in-game-screen");
     this.firstChoiceCard = null;
     this.secondChoiceCard = null;
-    this.listOfimageUrls = this.setListOfimageUrls(numberOfCards);
     this.setDebugMode(false);
     this.createCards();
   }
@@ -38,10 +44,11 @@ class Game {
   isGameOver() {
     return Boolean(this.numberOfMatches == this.numberOfCards / 2);
   }
-  setListOfimageUrls(numberOfCards) {
+  getListOfimageUrls(numberOfCards) {
     let imageUrls = [];
+    let shuffledCardNumbers = Utils.getShuffledArray(Utils.getSequence(1, 24));
     for (let i = 0; i < numberOfCards / 2; i++) {
-      let fileName = `${i + 1}.jpg`;
+      let fileName = `${shuffledCardNumbers[i]}.jpg`;
       imageUrls.push(fileName);
     }
     return Utils.getShuffledArray([...imageUrls, ...imageUrls]);
@@ -53,13 +60,14 @@ class Game {
     let grid = document.createElement("ul");
     grid.classList.add("grid");
     grid.id = "grid-of-cards";
+    let listOfimageUrls = this.getListOfimageUrls(this.numberOfCards);
     for (let i = 0; i < this.numberOfCards; i++) {
       let card = document.createElement("li");
       card.classList.add("card");
       let front = document.createElement("div");
       front.classList.add("front");
       front.style.backgroundImage =
-        'url("' + IMG_DIR + "/" + this.listOfimageUrls[i] + '")';
+        'url("' + IMG_DIR + "/" + listOfimageUrls[i] + '")';
       let back = document.createElement("div");
       back.classList.add("back");
       card.addEventListener("click", () => {
@@ -197,7 +205,6 @@ class InGameScreen extends Screen {
 class GameOverScreen extends Screen {
   constructor() {
     super("game-over-screen");
-    this.createContent();
     this.numberOfCards;
     this.numberOfTries;
   }
@@ -211,7 +218,7 @@ class GameOverScreen extends Screen {
     let wellDone = document.createElement("div");
     wellDone.innerHTML = "Well done!";
     let message = document.createElement("div");
-    message.innerHTML = `You matched ${this.numberOfCards} cards in ${this.numberOfTries} tries.`;
+    message.innerHTML = `You found ${this.numberOfCards / 2} matches in ${this.numberOfTries} tries.`;
     let newGameBtn = document.createElement("button");
     let btnText = document.createTextNode("New Game");
     newGameBtn.appendChild(btnText);
