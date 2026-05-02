@@ -1,5 +1,4 @@
-const imgDir = "./images";
-const parentElement = document.getElementById("game");
+const IMG_DIR = "./images";
 
 class Utils {
   static getShuffledArray(array) {
@@ -18,16 +17,26 @@ class Utils {
 }
 
 class Game {
-  constructor(numberOfCards, debugMode = false) {
+  constructor(numberOfCards, controller) {
     this.numberOfCards = numberOfCards;
-    this.roundsPlayed = 0;
-    this.debugMode = debugMode;
+    this.controller = controller;
+    this.numberOfTries = 0;
+    this.numberOfMatches = 0;
+    this.gameContainer = document.getElementById("in-game-screen");
     this.firstChoiceCard = null;
     this.secondChoiceCard = null;
     this.listOfimageUrls = this.setListOfimageUrls(numberOfCards);
-    if (debugMode) {
+    this.setDebugMode(false);
+    this.createCards();
+  }
+  setDebugMode(isDebugModeOn) {
+    this.debugMode = isDebugModeOn;
+    if (isDebugModeOn) {
       this.displayDebugInfo();
     }
+  }
+  isGameOver() {
+    return Boolean(this.numberOfMatches == this.numberOfCards / 2);
   }
   setListOfimageUrls(numberOfCards) {
     let imageUrls = [];
@@ -38,15 +47,19 @@ class Game {
     return Utils.getShuffledArray([...imageUrls, ...imageUrls]);
   }
   createCards() {
+    if (document.getElementById("grid-of-cards")) {
+      document.getElementById("grid-of-cards").remove();
+    }
     let grid = document.createElement("ul");
     grid.classList.add("grid");
+    grid.id = "grid-of-cards";
     for (let i = 0; i < this.numberOfCards; i++) {
       let card = document.createElement("li");
       card.classList.add("card");
       let front = document.createElement("div");
       front.classList.add("front");
       front.style.backgroundImage =
-        'url("' + imgDir + "/" + this.listOfimageUrls[i] + '")';
+        'url("' + IMG_DIR + "/" + this.listOfimageUrls[i] + '")';
       let back = document.createElement("div");
       back.classList.add("back");
       card.addEventListener("click", () => {
@@ -56,22 +69,22 @@ class Game {
       card.appendChild(front);
       grid.appendChild(card);
     }
-    parentElement.appendChild(grid);
+    this.gameContainer.appendChild(grid);
   }
   chooseCard(clickedCard) {
     let isCardCovered = !clickedCard.classList.contains("uncovered");
-    console.log(isCardCovered);
     if (!this.firstChoiceCard && isCardCovered) {
-      this.roundsPlayed++;
       this.firstChoiceCard = clickedCard;
       this.flipCard(clickedCard);
     } else if (!this.secondChoiceCard && isCardCovered) {
+      this.numberOfTries++;
       this.secondChoiceCard = clickedCard;
       this.flipCard(clickedCard);
       if (
         this.firstChoiceCard.lastChild.style.backgroundImage ==
         this.secondChoiceCard.lastChild.style.backgroundImage
       ) {
+        this.numberOfMatches++;
         this.firstChoiceCard.classList.add("found");
         this.secondChoiceCard.classList.add("found");
         this.firstChoiceCard = null;
@@ -88,28 +101,164 @@ class Game {
     if (this.debugMode) {
       this.displayDebugInfo();
     }
+    if (this.isGameOver()) {
+      this.controller.screens.gameOverScreen.updateScreen(
+        this.numberOfCards,
+        this.numberOfTries,
+      );
+      this.controller.switchScreen(this.controller.screens.gameOverScreen);
+    }
   }
   flipCard(cardElement) {
-  if (cardElement.classList.contains("uncovered")) {
-    cardElement.classList.remove("uncovered");
-    // Replace with class:
-    //cardElement.style.transform = "rotateY(0deg)";
-  } else {
-    cardElement.classList.add("uncovered");
-    // Replace with class:
-    //cardElement.style.transform = "rotateY(180deg)";
+    if (cardElement.classList.contains("uncovered")) {
+      cardElement.classList.remove("uncovered");
+      // Replace with class:
+      //cardElement.style.transform = "rotateY(0deg)";
+    } else {
+      cardElement.classList.add("uncovered");
+      // Replace with class:
+      //cardElement.style.transform = "rotateY(180deg)";
+    }
   }
-}
   displayDebugInfo() {
     let debugContainer = document.getElementById("debug");
     if (!debugContainer) {
       debugContainer = document.createElement("div");
       debugContainer.id = "debug";
     }
-    debugContainer.innerHTML = `Rounds played: ${this.roundsPlayed}`;
+    debugContainer.innerHTML = `Rounds played: ${this.numberOfTries}<br>`;
+    debugContainer.innerHTML += `Game Over: ${this.isGameOver()}`;
     document.body.appendChild(debugContainer);
   }
 }
 
-let game = new Game(48);
-game.createCards();
+class Screen {
+  constructor(screenId) {
+    this.controller;
+    this.screenId = screenId;
+    this.screenContainer = this.createScreen(screenId);
+    this.hideScreen();
+  }
+  setController(controller) {
+    this.controller = controller;
+  }
+  createScreen(screenId) {
+    let screen = document.createElement("div");
+    screen.classList.add("screen");
+    screen.id = screenId;
+    document.body.appendChild(screen);
+    return screen;
+  }
+  clearContent() {
+    while (this.screenContainer.firstChild) {
+      this.screenContainer.removeChild(this.screenContainer.lastChild);
+    }
+  }
+  fillScreen(htmlContent) {
+    this.screenContainer.innerHTML = htmlContent;
+  }
+  hideScreen() {
+    this.screenContainer.style.display = "none";
+  }
+  showScreen() {
+    this.screenContainer.style.display = "initial";
+  }
+}
+
+class StartGameScreen extends Screen {
+  constructor() {
+    super("start-game-screen");
+    let title = document.createElement("h1");
+    title.innerHTML = "Matching Pixel Pairs";
+    this.screenContainer.appendChild(title);
+    let difficulties = { easy: 4, medium: 24, hard: 48 };
+    for (let [description, numberOfCards] of Object.entries(difficulties)) {
+      let startBtn = document.createElement("button");
+      let btnText = document.createTextNode(`${description}`);
+      startBtn.appendChild(btnText);
+      startBtn.addEventListener("click", () => {
+        this.controller.screens.inGameScreen.startNewGame(numberOfCards);
+        this.controller.switchScreen(this.controller.screens.inGameScreen);
+      });
+      this.screenContainer.appendChild(startBtn);
+    }
+  }
+}
+
+class InGameScreen extends Screen {
+  constructor() {
+    super("in-game-screen");
+  }
+  startNewGame(numberOfCards) {
+    let game = new Game(numberOfCards, this.controller);
+  }
+}
+
+class GameOverScreen extends Screen {
+  constructor() {
+    super("game-over-screen");
+    this.createContent();
+    this.numberOfCards;
+    this.numberOfTries;
+  }
+  updateScreen(numberOfCards, numberOfTries) {
+    this.numberOfCards = numberOfCards;
+    this.numberOfTries = numberOfTries;
+    this.clearContent();
+    this.createContent();
+  }
+  createContent() {
+    let wellDone = document.createElement("div");
+    wellDone.innerHTML = "Well done!";
+    let message = document.createElement("div");
+    message.innerHTML = `You matched ${this.numberOfCards} cards in ${this.numberOfTries} tries.`;
+    let newGameBtn = document.createElement("button");
+    let btnText = document.createTextNode("New Game");
+    newGameBtn.appendChild(btnText);
+    newGameBtn.addEventListener("click", () => {
+      this.controller.switchScreen(this.controller.screens.startGameScreen);
+    });
+    this.screenContainer.appendChild(wellDone);
+    this.screenContainer.appendChild(message);
+    this.screenContainer.appendChild(newGameBtn);
+  }
+}
+
+class Controller {
+  constructor() {
+    this.screens = this.setScreens();
+    this.attachControllerToScreens();
+    this.currentScreen;
+  }
+  setScreens() {
+    let screens = new Object();
+    screens["startGameScreen"] = new StartGameScreen();
+    screens["inGameScreen"] = new InGameScreen();
+    screens["gameOverScreen"] = new GameOverScreen();
+    return screens;
+  }
+  attachControllerToScreens() {
+    this.screens.startGameScreen.setController(this);
+    this.screens.inGameScreen.setController(this);
+    this.screens.gameOverScreen.setController(this);
+  }
+  switchScreen(nextScreen) {
+    nextScreen.showScreen();
+    if (this.currentScreen && this.currentScreen != nextScreen) {
+      this.currentScreen.hideScreen();
+    }
+    this.currentScreen = nextScreen;
+  }
+}
+
+class App {
+  constructor() {
+    this.controller = new Controller();
+  }
+  run() {
+    this.controller.switchScreen(this.controller.screens.startGameScreen);
+  }
+}
+
+let app = new App();
+app.run();
