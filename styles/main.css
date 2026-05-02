@@ -92,11 +92,32 @@ body {
 .uncovered {
   animation: up_flip_down 400ms ease-in-out;
   animation-fill-mode: forwards;
-  z-index: 30;
+}
+
+.covered {
+  animation: cover-card 400ms ease-in-out;
 }
 
 .rotatedY180 {
   transform: rotateY(180deg);
+}
+
+@keyframes cover-card {
+  0% {
+    transform: scale(1) rotateY(-180deg);
+  }
+  25% {
+    transform: scale(1.5) rotateY(-160deg);
+  }
+  50% {
+    transform: scale(1.5) rotateY(-90deg);
+  }
+  75% {
+    transform: scale(1.5) rotateY(-20deg);
+  }
+  100% {
+    transform: scale(1) rotateY(0deg);
+  }
 }
 
 @keyframes up_flip_down {

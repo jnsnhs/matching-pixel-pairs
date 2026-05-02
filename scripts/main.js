@@ -70,7 +70,7 @@ class Game {
       let front = document.createElement("div");
       front.classList.add("front");
       front.style.backgroundImage =
-      'url("' + IMG_DIR + "/" + listOfimageUrls[i] + '")';
+        'url("' + IMG_DIR + "/" + listOfimageUrls[i] + '")';
       let back = document.createElement("div");
       back.classList.add("back");
       card.addEventListener("click", () => {
@@ -128,13 +128,11 @@ class Game {
   }
   flipCard(cardElement) {
     if (cardElement.classList.contains("uncovered")) {
+      cardElement.classList.add("covered");
       cardElement.classList.remove("uncovered");
-      // Replace with class:
-      //cardElement.style.transform = "rotateY(0deg)";
     } else {
       cardElement.classList.add("uncovered");
-      // Replace with class:
-      //cardElement.style.transform = "rotateY(180deg)";
+      cardElement.classList.remove("covered");
     }
   }
   displayDebugInfo() {
@@ -172,9 +170,6 @@ class Screen {
       this.screenContainer.removeChild(this.screenContainer.lastChild);
     }
   }
-  fillScreen(htmlContent) {
-    this.screenContainer.innerHTML = htmlContent;
-  }
   hideScreen() {
     this.screenContainer.style.display = "none";
   }
@@ -187,24 +182,34 @@ class StartGameScreen extends Screen {
   constructor() {
     super("start-game-screen");
     this.createContent();
+    this.numberOfCards = 24;
   }
   createContent() {
     let title = document.createElement("h1");
     title.innerHTML = "Matching Pixel Pairs";
     this.screenContainer.appendChild(title);
-    let difficulties = { easy: 4, medium: 24, hard: 48 };
-    let mainMenu = document.createElement("div");
+    let difficulties = { easy: 12, medium: 24, hard: 48 };
+    let difficultySettings = document.createElement("div");
     for (let [description, numberOfCards] of Object.entries(difficulties)) {
-      let startBtn = document.createElement("button");
+      let diffLevelBtn = document.createElement("button");
       let btnText = document.createTextNode(`${description}`);
-      startBtn.appendChild(btnText);
-      startBtn.addEventListener("click", () => {
-        this.controller.screens.inGameScreen.startNewGame(numberOfCards);
-        this.controller.switchScreen(this.controller.screens.inGameScreen);
+      diffLevelBtn.appendChild(btnText);
+      diffLevelBtn.addEventListener("click", () => {
+        this.numberOfCards = numberOfCards;
       });
-      mainMenu.appendChild(startBtn);
+      difficultySettings.appendChild(diffLevelBtn);
     }
-    this.screenContainer.appendChild(mainMenu);
+    this.screenContainer.appendChild(difficultySettings);
+    let startBtn = document.createElement("button");
+    let startBtnText = document.createTextNode("Start Game");
+    let startBtnContainer = document.createElement("div");
+    startBtn.appendChild(startBtnText);
+    startBtnContainer.appendChild(startBtn);
+    this.screenContainer.appendChild(startBtnContainer);
+    startBtn.addEventListener("click", () => {
+      this.controller.screens.inGameScreen.startNewGame(this.numberOfCards);
+      this.controller.switchScreen(this.controller.screens.inGameScreen);
+    });
   }
 }
 
