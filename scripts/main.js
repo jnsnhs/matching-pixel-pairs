@@ -154,7 +154,7 @@ class Screen {
     let screen = document.createElement("div");
     screen.classList.add("screen");
     screen.id = screenId;
-    document.body.appendChild(screen);
+    document.getElementById("matching-pixel-pairs").appendChild(screen);
     return screen;
   }
   clearContent() {
@@ -260,10 +260,16 @@ class Controller {
 
 class App {
   constructor() {
-    this.controller = new Controller();
+    let appContainer = document.getElementById("matching-pixel-pairs");
+    if (appContainer) {
+      appContainer.classList.add("app-container");
+      this.controller = new Controller();
+    }
   }
   run() {
-    this.controller.switchScreen(this.controller.screens.startGameScreen);
+    if (this.controller) {
+      this.controller.switchScreen(this.controller.screens.startGameScreen);
+    }
   }
 }
 
