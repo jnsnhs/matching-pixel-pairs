@@ -24,8 +24,9 @@ class Utils {
 }
 
 class Game {
-  constructor(numberOfCards, controller) {
+  constructor(numberOfCards, nameOfDeck, controller) {
     this.numberOfCards = numberOfCards;
+    this.nameOfDeck = nameOfDeck;
     this.controller = controller;
     this.numberOfTries = 0;
     this.numberOfMatches = 0;
@@ -48,7 +49,7 @@ class Game {
     let imageUrls = [];
     let shuffledCardNumbers = Utils.getShuffledArray(Utils.getSequence(1, 24));
     for (let i = 0; i < numberOfCards / 2; i++) {
-      let fileName = `${shuffledCardNumbers[i]}.jpg`;
+      let fileName = `${shuffledCardNumbers[i]}.png`;
       imageUrls.push(fileName);
     }
     return Utils.getShuffledArray([...imageUrls, ...imageUrls]);
@@ -83,7 +84,7 @@ class Game {
       let front = document.createElement("div");
       front.classList.add("front");
       front.style.backgroundImage =
-        'url("' + IMG_DIR + "/" + listOfimageUrls[i] + '")';
+        'url("' + IMG_DIR + `/cards/` + listOfimageUrls[i] + '")';
       let back = document.createElement("div");
       back.classList.add("back");
       card.addEventListener("click", () => {
@@ -195,34 +196,54 @@ class StartGameScreen extends Screen {
   constructor() {
     super("start-game-screen");
     this.createContent();
-    this.numberOfCards = 24;
+    this.numberOfCards;
+    this.nameOfDeck = "deck2";
+    this.selectDifficulty("normal", 24);
   }
   createContent() {
-    let title = document.createElement("h1");
-    title.innerHTML = "Matching Pixel Pairs";
+    let title = document.createElement("div");
+    title.innerHTML = '<img class="title" src="./images/title.png">'  ;
     this.screenContainer.appendChild(title);
-    let difficulties = { easy: 12, medium: 24, hard: 48 };
-    let difficultySettings = document.createElement("div");
+    let difficulties = { easy: 12, normal: 24, hard: 48 };
+    let difficultySettings = document.createElement("menu");
     for (let [description, numberOfCards] of Object.entries(difficulties)) {
-      let diffLevelBtn = document.createElement("button");
-      let btnText = document.createTextNode(`${description}`);
-      diffLevelBtn.appendChild(btnText);
+      let diffLevelBtn = document.createElement("img");
+      diffLevelBtn.classList.add("difficulty-button");
+      diffLevelBtn.id = `${description}-difficulty-btn`;
+      diffLevelBtn.src = `./images/${description}.png`;
       diffLevelBtn.addEventListener("click", () => {
-        this.numberOfCards = numberOfCards;
+        this.selectDifficulty(description, numberOfCards);
       });
       difficultySettings.appendChild(diffLevelBtn);
     }
     this.screenContainer.appendChild(difficultySettings);
-    let startBtn = document.createElement("button");
-    let startBtnText = document.createTextNode("Start Game");
+    this.createStartButton();
+  }
+  createStartButton() {
+    let startBtn = document.createElement("img");
+    startBtn.classList.add("start-button");
+    startBtn.src = "./images/start_game_button.png";
     let startBtnContainer = document.createElement("div");
-    startBtn.appendChild(startBtnText);
     startBtnContainer.appendChild(startBtn);
     this.screenContainer.appendChild(startBtnContainer);
     startBtn.addEventListener("click", () => {
-      this.controller.screens.inGameScreen.startNewGame(this.numberOfCards);
+      this.controller.screens.inGameScreen.startNewGame(
+        this.numberOfCards,
+        this.nameOfDeck,
+      );
       this.controller.switchScreen(this.controller.screens.inGameScreen);
     });
+  }
+  selectDifficulty(level, numberOfCards) {
+    document.getElementById("easy-difficulty-btn").classList.remove("selected");
+    document
+      .getElementById("normal-difficulty-btn")
+      .classList.remove("selected");
+    document.getElementById("hard-difficulty-btn").classList.remove("selected");
+    document
+      .getElementById(`${level}-difficulty-btn`)
+      .classList.add("selected");
+    this.numberOfCards = numberOfCards;
   }
 }
 
@@ -230,8 +251,8 @@ class InGameScreen extends Screen {
   constructor() {
     super("in-game-screen");
   }
-  startNewGame(numberOfCards) {
-    let game = new Game(numberOfCards, this.controller);
+  startNewGame(numberOfCards, nameOfDeck) {
+    let game = new Game(numberOfCards, nameOfDeck, this.controller);
   }
 }
 
