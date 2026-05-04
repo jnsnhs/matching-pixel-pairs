@@ -211,7 +211,7 @@ class StartGameScreen extends Screen {
       let diffLevelBtn = document.createElement("img");
       diffLevelBtn.classList.add("difficulty-button");
       diffLevelBtn.id = `${description}-difficulty-btn`;
-      diffLevelBtn.src = `./images/${description}_bright.png`;
+      diffLevelBtn.src = `./images/${description}.png`;
       diffLevelBtn.addEventListener("click", () => {
         this.selectDifficulty(description, numberOfCards);
       });
