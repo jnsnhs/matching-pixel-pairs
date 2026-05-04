@@ -322,8 +322,7 @@ class App {
   }
   run() {
     if (this.controller) {
-      this.controller.screens.gameOverScreen.updateScreen(12, 12);
-      this.controller.switchScreen(this.controller.screens.gameOverScreen);
+      this.controller.switchScreen(this.controller.screens.startGameScreen);
     }
   }
 }
