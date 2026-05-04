@@ -210,7 +210,7 @@ class StartGameScreen extends Screen {
       let diffLevelBtn = document.createElement("img");
       diffLevelBtn.classList.add("difficulty-button");
       diffLevelBtn.id = `${description}-difficulty-btn`;
-      diffLevelBtn.src = `./images/${description}.png`;
+      diffLevelBtn.src = `./images/${description}_bright.png`;
       diffLevelBtn.addEventListener("click", () => {
         this.selectDifficulty(description, numberOfCards);
       });
@@ -269,13 +269,13 @@ class GameOverScreen extends Screen {
     this.createContent();
   }
   createContent() {
-    let wellDone = document.createElement("div");
-    wellDone.innerHTML = "Well done!";
+    let wellDone = document.createElement("img");
+    wellDone.src = "./images/well_done.png";
+    wellDone.classList.add("well-done");
     let message = document.createElement("div");
-    message.innerHTML = `You found ${this.numberOfCards / 2} matches in ${this.numberOfTries} tries.`;
-    let newGameBtn = document.createElement("button");
-    let btnText = document.createTextNode("New Game");
-    newGameBtn.appendChild(btnText);
+    let newGameBtn = document.createElement("img");
+    newGameBtn.classList.add("again-button");
+    newGameBtn.src = "./images/play_again_golden.png";
     newGameBtn.addEventListener("click", () => {
       this.controller.switchScreen(this.controller.screens.startGameScreen);
     });
@@ -322,7 +322,8 @@ class App {
   }
   run() {
     if (this.controller) {
-      this.controller.switchScreen(this.controller.screens.startGameScreen);
+      this.controller.screens.gameOverScreen.updateScreen(12, 12);
+      this.controller.switchScreen(this.controller.screens.gameOverScreen);
     }
   }
 }

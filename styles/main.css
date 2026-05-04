@@ -35,7 +35,8 @@ body {
   display: flex;
 }
 
-.start-game-screen {
+.start-game-screen,
+.game-over-screen {
   align-content: center;
   justify-items: center;
   font-size: 12pt;
@@ -48,8 +49,8 @@ body {
   filter: drop-shadow(0 0 0.5em #222);
 }
 
-.start-button {
-  width: 14em;
+.start-button, .again-button {
+  display: block;
   max-width: 100%;
   transition: transform 0.1s;
   filter: drop-shadow(0 0 0.5em #222);
@@ -57,13 +58,23 @@ body {
   animation-iteration-count: infinite;
 }
 
-.start-button:hover {
+.start-button {
+  width: 14em;
+}
+
+.again-button {
+  width: 16em;
+}
+
+.start-button:hover,
+.again-button:hover {
   animation: none;
   transform: scale(1.1);
   cursor: pointer;
 }
 
-.start-button:active {
+.start-button:active,
+.again-button:active {
   transform: scale(1);
 }
 
@@ -74,7 +85,7 @@ body {
 .difficulty-button {
   margin: 0em 0.5em;
   opacity: 0.5;
-  height: 2em;
+  height: 1.8em;
   cursor: pointer;
   transition: transform 0.1s;
   filter: saturate(0.5) drop-shadow(0 0 0.3em #222);
@@ -92,6 +103,14 @@ body {
 .difficulty-button.selected {
   opacity: 1;
   filter: saturate(1) drop-shadow(0 0 0.3em #222);
+}
+
+.well-done {
+  width: 28em;
+  max-width: 100%;
+  margin: 3em 0em;
+  display: block;
+  filter: drop-shadow(0 0 0.3em #222);
 }
 
 @keyframes start-button-animation {
