@@ -1,0 +1,1 @@
+<img src="./images/gameplay.gif" style="width: 100%">
