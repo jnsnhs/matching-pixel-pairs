@@ -37,14 +37,25 @@ body {
 
 .start-game-screen,
 .game-over-screen {
+  display: flex;
+  flex-direction: column;
   align-content: center;
   justify-items: center;
+  justify-content: center;
+  align-items: center;
   font-size: 12pt;
   padding: 1em;
 }
 
+.start-game-screen,
+.game-over-screen {
+  background-image: url("../images/screen_background.png");
+  background-size: 26em;
+}
+
 .start-game-screen .title {
   width: 28em;
+  display: block;
   max-width: 100%;
   filter: drop-shadow(0 0 0.5em #222);
 }

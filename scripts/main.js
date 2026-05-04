@@ -201,8 +201,9 @@ class StartGameScreen extends Screen {
     this.selectDifficulty("normal", 24);
   }
   createContent() {
-    let title = document.createElement("div");
-    title.innerHTML = '<img class="title" src="./images/title.png">'  ;
+    let title = document.createElement("img");
+    title.src = "./images/title.png";
+    title.classList.add("title");
     this.screenContainer.appendChild(title);
     let difficulties = { easy: 12, normal: 24, hard: 48 };
     let difficultySettings = document.createElement("menu");
