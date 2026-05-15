@@ -4,34 +4,19 @@
   box-sizing: border-box;
 }
 
+
 body {
-  height: 80%;
-  width: 80%;
+  height: 100%;
+  width: 100%;
   position: absolute;
-}
-
-.app-container {
-  background-image: url("../images/wood.jpg");
-}
-
-@media (aspect-ratio > 1) {
-  .app-container {
-    background-size: 100vw auto;
-  }
-}
-
-@media (aspect-ratio <= 1) {
-  .app-container {
-    background-size: auto 100vh;
-  }
 }
 
 /* Screens */
 
 .screen {
   position: absolute;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   display: flex;
 }
 
@@ -51,6 +36,22 @@ body {
 .game-over-screen {
   background-image: url("../images/screen_background.png");
   background-size: 26em;
+}
+
+.in-game-screen {
+  background-image: url("../images/wood.jpg");
+}
+
+@media (aspect-ratio > 1) {
+  .in-game-screen {
+    background-size: 100vw auto;
+  }
+}
+
+@media (aspect-ratio <= 1) {
+  .in-game-screen {
+    background-size: auto 100vh;
+  }
 }
 
 .start-game-screen .title {
