@@ -1,6 +1,6 @@
-const IMG_DIR = "./images";
+const IMG_DIR = "./pixelpairs/images";
 
-class Utils {
+class Helper {
   static getShuffledArray(array) {
     let currentIndex = array.length;
     let temporaryValue;
@@ -24,35 +24,28 @@ class Utils {
 }
 
 class Game {
-  constructor(numberOfCards, nameOfDeck, controller) {
+  constructor(numberOfCards, controller) {
     this.numberOfCards = numberOfCards;
-    this.nameOfDeck = nameOfDeck;
     this.controller = controller;
     this.numberOfTries = 0;
     this.numberOfMatches = 0;
     this.gameContainer = document.getElementById("in-game-screen");
     this.firstChoiceCard = null;
     this.secondChoiceCard = null;
-    this.setDebugMode(false);
     this.createCards();
-  }
-  setDebugMode(isDebugModeOn) {
-    this.debugMode = isDebugModeOn;
-    if (isDebugModeOn) {
-      this.displayDebugInfo();
-    }
   }
   isGameOver() {
     return Boolean(this.numberOfMatches == this.numberOfCards / 2);
   }
   getListOfimageUrls(numberOfCards) {
     let imageUrls = [];
-    let shuffledCardNumbers = Utils.getShuffledArray(Utils.getSequence(1, 24));
+    let shuffledCardNumbers = Helper.getShuffledArray(
+      Helper.getSequence(1, 24));
     for (let i = 0; i < numberOfCards / 2; i++) {
       let fileName = `${shuffledCardNumbers[i]}.png`;
       imageUrls.push(fileName);
     }
-    return Utils.getShuffledArray([...imageUrls, ...imageUrls]);
+    return Helper.getShuffledArray([...imageUrls, ...imageUrls]);
   }
   createCards() {
     if (document.getElementById("grid-of-cards")) {
@@ -78,7 +71,7 @@ class Game {
     for (let i = 0; i < this.numberOfCards; i++) {
       let rotationContainer = document.createElement("li");
       rotationContainer.classList.add("rotation-container");
-      this.addRandomRotation(rotationContainer);
+      this.addRandomRotationToCard(rotationContainer);
       let card = document.createElement("div");
       card.classList.add("card");
       let front = document.createElement("div");
@@ -87,9 +80,7 @@ class Game {
         'url("' + IMG_DIR + `/cards/` + listOfimageUrls[i] + '")';
       let back = document.createElement("div");
       back.classList.add("back");
-      card.addEventListener("click", () => {
-        this.chooseCard(card);
-      });
+      card.addEventListener("click", () => {this.chooseCard(card);});
       card.appendChild(back);
       card.appendChild(front);
       rotationContainer.appendChild(card);
@@ -97,7 +88,7 @@ class Game {
     }
     this.gameContainer.appendChild(grid);
   }
-  addRandomRotation(element) {
+  addRandomRotationToCard(element) {
     let values = [-0.9, -0.6, -0.3, 0, 0.3, 0.6, 0.9];
     let choice = values[Math.floor(Math.random() * values.length)];
     element.style.transform = `rotateZ(${choice}deg)`;
@@ -133,11 +124,7 @@ class Game {
       this.displayDebugInfo();
     }
     if (this.isGameOver()) {
-      this.controller.screens.gameOverScreen.updateScreen(
-        this.numberOfCards,
-        this.numberOfTries,
-      );
-      this.controller.switchScreen(this.controller.screens.gameOverScreen);
+      this.switchToGameOverScreen();
     }
   }
   flipCard(cardElement) {
@@ -149,15 +136,12 @@ class Game {
       cardElement.classList.remove("covered");
     }
   }
-  displayDebugInfo() {
-    let debugContainer = document.getElementById("debug");
-    if (!debugContainer) {
-      debugContainer = document.createElement("div");
-      debugContainer.id = "debug";
-    }
-    debugContainer.innerHTML = `Rounds played: ${this.numberOfTries}<br>`;
-    debugContainer.innerHTML += `Game Over: ${this.isGameOver()}`;
-    document.body.appendChild(debugContainer);
+  switchToGameOverScreen() {
+    this.controller.screens.gameOverScreen.updateScreen(
+      this.numberOfCards,
+      this.numberOfTries,
+    );
+    this.controller.switchScreen(this.controller.screens.gameOverScreen);
   }
 }
 
@@ -195,45 +179,42 @@ class Screen {
 class StartGameScreen extends Screen {
   constructor() {
     super("start-game-screen");
-    this.createContent();
+    this.screenContainer.appendChild(this.createContent());
     this.numberOfCards;
-    this.nameOfDeck = "deck2";
     this.selectDifficulty("normal", 24);
   }
   createContent() {
+    let screenContent = document.createElement("div");
+    screenContent.classList.add("screen-content");
     let title = document.createElement("img");
-    title.src = "./images/title.png";
+    title.src = IMG_DIR + "/title.png";
     title.classList.add("title");
-    this.screenContainer.appendChild(title);
+    screenContent.appendChild(title);
     let difficulties = { easy: 12, normal: 24, hard: 48 };
     let difficultySettings = document.createElement("menu");
     for (let [description, numberOfCards] of Object.entries(difficulties)) {
       let diffLevelBtn = document.createElement("img");
       diffLevelBtn.classList.add("difficulty-button");
       diffLevelBtn.id = `${description}-difficulty-btn`;
-      diffLevelBtn.src = `./images/${description}.png`;
+      diffLevelBtn.src = IMG_DIR + `/${description}.png`;
       diffLevelBtn.addEventListener("click", () => {
         this.selectDifficulty(description, numberOfCards);
       });
       difficultySettings.appendChild(diffLevelBtn);
     }
-    this.screenContainer.appendChild(difficultySettings);
-    this.createStartButton();
+    screenContent.appendChild(difficultySettings);
+    screenContent.appendChild(this.createStartButton());
+    return screenContent;
   }
   createStartButton() {
     let startBtn = document.createElement("img");
     startBtn.classList.add("start-button");
-    startBtn.src = "./images/start_game_button.png";
-    let startBtnContainer = document.createElement("div");
-    startBtnContainer.appendChild(startBtn);
-    this.screenContainer.appendChild(startBtnContainer);
+    startBtn.src = IMG_DIR + "/start_game_button.png";
     startBtn.addEventListener("click", () => {
-      this.controller.screens.inGameScreen.startNewGame(
-        this.numberOfCards,
-        this.nameOfDeck,
-      );
+      this.controller.screens.inGameScreen.startNewGame(this.numberOfCards);
       this.controller.switchScreen(this.controller.screens.inGameScreen);
     });
+    return startBtn;
   }
   selectDifficulty(level, numberOfCards) {
     document.getElementById("easy-difficulty-btn").classList.remove("selected");
@@ -252,8 +233,8 @@ class InGameScreen extends Screen {
   constructor() {
     super("in-game-screen");
   }
-  startNewGame(numberOfCards, nameOfDeck) {
-    let game = new Game(numberOfCards, nameOfDeck, this.controller);
+  startNewGame(numberOfCards) {
+    let game = new Game(numberOfCards, this.controller);
   }
 }
 
@@ -270,19 +251,21 @@ class GameOverScreen extends Screen {
     this.createContent();
   }
   createContent() {
+    let screenContent = document.createElement("div");
+    screenContent.classList.add("screen-content");
+
     let wellDone = document.createElement("img");
-    wellDone.src = "./images/well_done.png";
+    wellDone.src = IMG_DIR + "/well_done.png";
     wellDone.classList.add("well-done");
-    let message = document.createElement("div");
     let newGameBtn = document.createElement("img");
     newGameBtn.classList.add("again-button");
-    newGameBtn.src = "./images/play_again_golden.png";
+    newGameBtn.src = IMG_DIR +"/play_again_golden.png";
     newGameBtn.addEventListener("click", () => {
       this.controller.switchScreen(this.controller.screens.startGameScreen);
     });
-    this.screenContainer.appendChild(wellDone);
-    this.screenContainer.appendChild(message);
-    this.screenContainer.appendChild(newGameBtn);
+    screenContent.appendChild(wellDone);
+    screenContent.appendChild(newGameBtn);
+    this.screenContainer.appendChild(screenContent);
   }
 }
 
