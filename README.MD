@@ -1,1 +1,5 @@
-<img src="./screenshots/gameplay.gif">
+# Matching Pixel Pairs
+
+
+
+<img src="./screenshots/screenshot_gameplay.gif" width="1280">
