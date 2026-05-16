@@ -39,12 +39,12 @@ body {
 
 .start-game-screen,
 .game-over-screen {
-  background-image: url( "./images/screen_background.png");
+  background-image: url( "./images/backgrounds/screen_background.png");
   background-size: 26em;
 }
 
 .in-game-screen {
-  background-image: url("./images/wood.jpg");
+  background-image: url("./images/backgrounds/wood.jpg");
 }
 
 @media (aspect-ratio > 1) {
@@ -143,6 +143,8 @@ body {
   }
 }
 
+/* Cards */
+
 .card {
   position: relative;
   float: left;
@@ -186,15 +188,15 @@ body {
 
 .card > .back {
   cursor: pointer;
-  background-image: url("./images/bg.jpg");
+  background-image: url("./images/backgrounds/bg.jpg");
 }
 
-.uncovered {
+.imgVisible {
   animation: uncover-card 400ms ease-in-out;
   animation-fill-mode: forwards;
 }
 
-.covered {
+.imgHidden {
   animation: cover-card 400ms ease-in-out;
 }
 

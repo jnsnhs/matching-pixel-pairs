@@ -1,4 +1,7 @@
-const IMG_DIR = "./pixelpairs/images";
+const IMG_DIR_CARDS = "./pixelpairs/images/cards/";
+const IMG_DIR_BUTTONS = "./pixelpairs/images/buttons/"
+const IMG_DIR_BACKGROUNDS = "./pixelpairs/images/backgrounds/"
+const IMG_DIR_TEXT = "./pixelpairs/images/text/"
 
 class Helper {
   static getShuffledArray(array) {
@@ -24,15 +27,17 @@ class Helper {
 }
 
 class Game {
-  constructor(numberOfCards, controller) {
+  constructor(numberOfCards) {
     this.numberOfCards = numberOfCards;
-    this.controller = controller;
     this.numberOfTries = 0;
     this.numberOfMatches = 0;
     this.gameContainer = document.getElementById("in-game-screen");
     this.firstChoiceCard = null;
     this.secondChoiceCard = null;
     this.createCards();
+  }
+  setController(controller) {
+    this.controller = controller;
   }
   isGameOver() {
     return Boolean(this.numberOfMatches == this.numberOfCards / 2);
@@ -77,10 +82,10 @@ class Game {
       let front = document.createElement("div");
       front.classList.add("front");
       front.style.backgroundImage =
-        'url("' + IMG_DIR + `/cards/` + listOfimageUrls[i] + '")';
+        'url("' + IMG_DIR_CARDS + `${listOfimageUrls[i]}")`;
       let back = document.createElement("div");
       back.classList.add("back");
-      card.addEventListener("click", () => {this.chooseCard(card);});
+      card.addEventListener("click", () => {this.pickCard(card);});
       card.appendChild(back);
       card.appendChild(front);
       rotationContainer.appendChild(card);
@@ -93,26 +98,24 @@ class Game {
     let choice = values[Math.floor(Math.random() * values.length)];
     element.style.transform = `rotateZ(${choice}deg)`;
   }
-  chooseCard(clickedCard) {
-    let isCardCovered = !clickedCard.classList.contains("uncovered");
-    if (!this.firstChoiceCard && isCardCovered) {
+  pickCard(clickedCard) {
+    let isImgHidden = !clickedCard.classList.contains("imgVisible");
+    if (isImgHidden && !this.firstChoiceCard) {
       this.firstChoiceCard = clickedCard;
       this.flipCard(clickedCard);
-    } else if (!this.secondChoiceCard && isCardCovered) {
-      this.numberOfTries++;
+    } else if (isImgHidden && !this.secondChoiceCard) {
       this.secondChoiceCard = clickedCard;
       this.flipCard(clickedCard);
+      this.numberOfTries++;
       if (
         this.firstChoiceCard.lastChild.style.backgroundImage ==
         this.secondChoiceCard.lastChild.style.backgroundImage
       ) {
         this.numberOfMatches++;
-        this.firstChoiceCard.classList.add("found");
-        this.secondChoiceCard.classList.add("found");
         this.firstChoiceCard = null;
         this.secondChoiceCard = null;
       }
-    } else if (isCardCovered) {
+    } else if (isImgHidden) {
       this.flipCard(this.firstChoiceCard);
       this.flipCard(this.secondChoiceCard);
       this.firstChoiceCard = null;
@@ -120,27 +123,21 @@ class Game {
       this.firstChoiceCard = clickedCard;
       this.flipCard(clickedCard);
     }
-    if (this.debugMode) {
-      this.displayDebugInfo();
-    }
     if (this.isGameOver()) {
       this.switchToGameOverScreen();
     }
   }
   flipCard(cardElement) {
-    if (cardElement.classList.contains("uncovered")) {
-      cardElement.classList.add("covered");
-      cardElement.classList.remove("uncovered");
+    if (cardElement.classList.contains("imgVisible")) {
+      cardElement.classList.remove("imgVisible");
+      cardElement.classList.add("imgHidden");
     } else {
-      cardElement.classList.add("uncovered");
-      cardElement.classList.remove("covered");
+      cardElement.classList.remove("imgHidden");
+      cardElement.classList.add("imgVisible");
     }
   }
   switchToGameOverScreen() {
-    this.controller.screens.gameOverScreen.updateScreen(
-      this.numberOfCards,
-      this.numberOfTries,
-    );
+    this.controller.screens.gameOverScreen.updateScreen();
     this.controller.switchScreen(this.controller.screens.gameOverScreen);
   }
 }
@@ -179,37 +176,43 @@ class Screen {
 class StartGameScreen extends Screen {
   constructor() {
     super("start-game-screen");
-    this.screenContainer.appendChild(this.createContent());
+    this.createContent();
     this.numberOfCards;
     this.selectDifficulty("normal", 24);
   }
   createContent() {
     let screenContent = document.createElement("div");
     screenContent.classList.add("screen-content");
-    let title = document.createElement("img");
-    title.src = IMG_DIR + "/title.png";
-    title.classList.add("title");
-    screenContent.appendChild(title);
+    screenContent.appendChild(this.getTitleText());
+    screenContent.appendChild(this.getDifficultyButtons());
+    screenContent.appendChild(this.getStartButton());
+    this.screenContainer.appendChild(screenContent);
+  }
+  getDifficultyButtons() {
     let difficulties = { easy: 12, normal: 24, hard: 48 };
     let difficultySettings = document.createElement("menu");
     for (let [description, numberOfCards] of Object.entries(difficulties)) {
       let diffLevelBtn = document.createElement("img");
       diffLevelBtn.classList.add("difficulty-button");
       diffLevelBtn.id = `${description}-difficulty-btn`;
-      diffLevelBtn.src = IMG_DIR + `/${description}.png`;
+      diffLevelBtn.src = IMG_DIR_BUTTONS + `${description}.png`;
       diffLevelBtn.addEventListener("click", () => {
         this.selectDifficulty(description, numberOfCards);
       });
       difficultySettings.appendChild(diffLevelBtn);
     }
-    screenContent.appendChild(difficultySettings);
-    screenContent.appendChild(this.createStartButton());
-    return screenContent;
+    return difficultySettings;
   }
-  createStartButton() {
+  getTitleText() {
+    let title = document.createElement("img");
+    title.src = IMG_DIR_TEXT + "title.png";
+    title.classList.add("title");
+    return title;
+  }
+  getStartButton() {
     let startBtn = document.createElement("img");
     startBtn.classList.add("start-button");
-    startBtn.src = IMG_DIR + "/start_game_button.png";
+    startBtn.src = IMG_DIR_BUTTONS + "start_game_button.png";
     startBtn.addEventListener("click", () => {
       this.controller.screens.inGameScreen.startNewGame(this.numberOfCards);
       this.controller.switchScreen(this.controller.screens.inGameScreen);
@@ -234,38 +237,41 @@ class InGameScreen extends Screen {
     super("in-game-screen");
   }
   startNewGame(numberOfCards) {
-    let game = new Game(numberOfCards, this.controller);
+    let game = new Game(numberOfCards);
+    game.setController(this.controller);
   }
 }
 
 class GameOverScreen extends Screen {
   constructor() {
     super("game-over-screen");
-    this.numberOfCards;
-    this.numberOfTries;
+    this.createContent();
   }
-  updateScreen(numberOfCards, numberOfTries) {
-    this.numberOfCards = numberOfCards;
-    this.numberOfTries = numberOfTries;
+  updateScreen() {
     this.clearContent();
     this.createContent();
   }
   createContent() {
     let screenContent = document.createElement("div");
     screenContent.classList.add("screen-content");
-
-    let wellDone = document.createElement("img");
-    wellDone.src = IMG_DIR + "/well_done.png";
-    wellDone.classList.add("well-done");
+    screenContent.appendChild(this.getMessageText());
+    screenContent.appendChild(this.getNewGameBtn());
+    this.screenContainer.appendChild(screenContent);
+  }
+  getNewGameBtn() {
     let newGameBtn = document.createElement("img");
     newGameBtn.classList.add("again-button");
-    newGameBtn.src = IMG_DIR +"/play_again_golden.png";
+    newGameBtn.src = IMG_DIR_BUTTONS + "play_again_golden.png";
     newGameBtn.addEventListener("click", () => {
       this.controller.switchScreen(this.controller.screens.startGameScreen);
     });
-    screenContent.appendChild(wellDone);
-    screenContent.appendChild(newGameBtn);
-    this.screenContainer.appendChild(screenContent);
+    return newGameBtn;
+  }
+  getMessageText() {
+    let wellDone = document.createElement("img");
+    wellDone.src = IMG_DIR_TEXT + "well_done.png";
+    wellDone.classList.add("well-done");
+    return wellDone;
   }
 }
 
