@@ -1,1 +1,1 @@
-<img src="./screenshots/gameplay.gif">
+<img src="./screenshots/gameplay.gif" width="100">
